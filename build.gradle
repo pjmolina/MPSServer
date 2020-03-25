@@ -16,6 +16,10 @@ buildscript {
     }
 }
 
+plugins {
+    id("com.specificlanguages.mps") version "1.0.1"
+}
+
 group "com.strumenta.mpsserver"
 description = "MpsServer"
 
@@ -70,6 +74,8 @@ ext.antScriptArgs =  [
 	"-Dmps.home=${mpsDir.getAbsolutePath()}",
 	"-Dartifacts.root=${artifactsDir.getAbsolutePath()}"
 ]
+
+assembleMps.script = "mpscode/build-server.xml"
 	
 task resolveMps(type: Copy) {
 	if (!project.hasProperty('mpsPath')) {
@@ -95,7 +101,7 @@ task setuplocal {
 }
 
 // Alias setuplocal as setup
-task setup(dependsOn: setuplocal)
+//task setup(dependsOn: setuplocal)
 
 task generateBuildAntScripts(type: BuildLanguages, dependsOn: [resolveMps, resolveMpsArtifacts]) {
 	scriptArgs = antScriptArgs
