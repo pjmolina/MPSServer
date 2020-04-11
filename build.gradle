@@ -1,186 +1,187 @@
-import de.itemis.mps.gradle.BuildLanguages
-import de.itemis.mps.gradle.TestLanguages
-import de.itemis.mps.gradle.GenerateLibrariesXml
-import de.itemis.mps.gradle.RunAntScript
+// import de.itemis.mps.gradle.BuildLanguages
+// import de.itemis.mps.gradle.TestLanguages
+// import de.itemis.mps.gradle.GenerateLibrariesXml
+// import de.itemis.mps.gradle.RunAntScript
 
-buildscript {
-    repositories {
-        maven { url 'https://projects.itemis.de/nexus/content/repositories/mbeddr' }
-        mavenCentral()
-        jcenter()
-    }
+// buildscript {
+//     repositories {
+//         maven { url 'https://projects.itemis.de/nexus/content/repositories/mbeddr' }
+//         mavenCentral()
+//         jcenter()
+//     }
 
-    dependencies {
-        classpath 'de.itemis.mps:mps-gradle-plugin:1.0.85.03fbeda'
-        classpath 'com.bmuschko:gradle-izpack-plugin:3.0'
-    }
-}
+//     dependencies {
+//         classpath 'de.itemis.mps:mps-gradle-plugin:1.0.85.03fbeda'
+//         classpath 'com.bmuschko:gradle-izpack-plugin:3.0'
+//     }
+// }
 
-group "com.strumenta.mpsserver"
-description = "MpsServer"
+// group "com.strumenta.mpsserver"
+// description = "MpsServer"
 
-configurations {
-	mps
-	mpsArtifacts
-	jdk
-	ant_lib
-	libs
-	distribution
-}
+// configurations {
+// 	mps
+// 	mpsArtifacts
+// 	jdk
+// 	ant_lib
+// 	libs
+// 	distribution
+// }
 
-ext.mpsVersion = '2019.3.1'
+// ext.mpsVersion = '2019.3.1'
 
-dependencies {
-	ant_lib "org.apache.ant:ant-junit:1.10.1"
-	mps "com.jetbrains:mps:$mpsVersion"
-}
+// dependencies {
+// 	ant_lib "org.apache.ant:ant-junit:1.10.1"
+// 	mps "com.jetbrains:mps:$mpsVersion"
+// }
 
-repositories {	
-	mavenCentral()
-	maven {
-		url 'https://projects.itemis.de/nexus/content/groups/OS/'
-	}
-}
+// repositories {	
+// 	mavenCentral()
+// 	maven {
+// 		url 'https://projects.itemis.de/nexus/content/groups/OS/'
+// 	}
+// }
 
-if (!hasProperty("jdk_home")) {
-	def java_home = System.properties['java.home']
-	def jdk_home = java_home
+// if (!hasProperty("jdk_home")) {
+// 	def java_home = System.properties['java.home']
+// 	def jdk_home = java_home
 
-	// In JDK >=11 we look for javac
-	if (!file("$jdk_home/bin/javac").isFile() && !file("$jdk_home/bin/javac.exe").isFile()) {
-		// In JDK <11 we look for the tools.jar
-		if (!file("$jdk_home/lib/tools.jar").isFile()) {
-			jdk_home = jdk_home + "/.."
-		}
-		if (!file("$jdk_home/lib/tools.jar").isFile()) {
-			throw new GradleException("Not finding the JDK...")
-		}		
-	} 
+// 	// In JDK >=11 we look for javac
+// 	if (!file("$jdk_home/bin/javac").isFile() && !file("$jdk_home/bin/javac.exe").isFile()) {
+// 		// In JDK <11 we look for the tools.jar
+// 		if (!file("$jdk_home/lib/tools.jar").isFile()) {
+// 			jdk_home = jdk_home + "/.."
+// 		}
+// 		if (!file("$jdk_home/lib/tools.jar").isFile()) {
+// 			throw new GradleException("Not finding the JDK...")
+// 		}		
+// 	} 
 	
-	ext.jdk_home = jdk_home
-}
+// 	ext.jdk_home = jdk_home
+// }
 
-ext.artifactsDir = new File(rootDir, 'artifacts')
-ext.mpsDir = project.hasProperty('mpsPath') ? new File("${mpsPath}") : new File(artifactsDir, 'mps')
-ext.distributionDependenciesDir = new File(buildDir, 'distribution-dependencies')
-ext.buildScriptClasspath = project.configurations.ant_lib.fileCollection({
-	true
-}) + project.files("$project.jdk_home/lib/tools.jar")
-ext.antScriptArgs =  [
-	"-Dmps.home=${mpsDir.getAbsolutePath()}",
-	"-Dartifacts.root=${artifactsDir.getAbsolutePath()}"
-]
+// ext.artifactsDir = new File(rootDir, 'artifacts')
+// ext.mpsserverHome = new File(rootDir, 'mpscode')
+// ext.mpsDir = project.hasProperty('mpsPath') ? new File("${mpsPath}") : new File(artifactsDir, 'mps')
+// ext.distributionDependenciesDir = new File(buildDir, 'distribution-dependencies')
+// ext.buildScriptClasspath = project.configurations.ant_lib.fileCollection({
+// 	true
+// }) + project.files("$project.jdk_home/lib/tools.jar")
+// ext.antScriptArgs =  [
+// 	"-Dmps.home=${mpsDir.getAbsolutePath()}",
+// 	"-Dartifacts.root=${artifactsDir.getAbsolutePath()}"
+// ]
 	
-task resolveMps(type: Copy) {
-	if (!project.hasProperty('mpsPath')) {
-		println "Downloading MPS in ${mpsDir.getAbsolutePath()}"
-		from {
-			configurations.mps.resolve().collect { zipTree(it) }
-		}
-		into mpsDir
-	} else {
-		println "MPS already installed in ${mpsDir.getAbsolutePath()}"
-	}
-}
+// task resolveMps(type: Copy) {
+// 	if (!project.hasProperty('mpsPath')) {
+// 		println "Downloading MPS in ${mpsDir.getAbsolutePath()}"
+// 		from {
+// 			configurations.mps.resolve().collect { zipTree(it) }
+// 		}
+// 		into mpsDir
+// 	} else {
+// 		println "MPS already installed in ${mpsDir.getAbsolutePath()}"
+// 	}
+// }
 
-task resolveMpsArtifacts(type: Copy) {
-	from {
-		configurations.mpsArtifacts.resolve().collect { zipTree(it) }
-	}
-	into artifactsDir
-}
+// task resolveMpsArtifacts(type: Copy) {
+// 	from {
+// 		configurations.mpsArtifacts.resolve().collect { zipTree(it) }
+// 	}
+// 	into artifactsDir
+// }
 
-task setuplocal {
-	dependsOn resolveMps, resolveMpsArtifacts
-}
+// task setuplocal {
+// 	dependsOn resolveMps, resolveMpsArtifacts
+// }
 
-// Alias setuplocal as setup
-task setup(dependsOn: setuplocal)
+// // Alias setuplocal as setup
+// task setup(dependsOn: setuplocal)
 
-task generateBuildAntScripts(type: BuildLanguages, dependsOn: [resolveMps, resolveMpsArtifacts]) {
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-meta.xml')
-}
+// task generateBuildAntScripts(type: BuildLanguages, dependsOn: [resolveMps, resolveMpsArtifacts]) {
+// 	scriptArgs = antScriptArgs
+// 	scriptClasspath = buildScriptClasspath
+// 	script new File('mpscode/build-meta.xml')
+// }
 
-task buildServer(type: BuildLanguages, dependsOn: [generateBuildAntScripts]) {
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-server.xml')
-}
+// task buildServer(type: BuildLanguages, dependsOn: [generateBuildAntScripts]) {
+// 	scriptArgs = antScriptArgs
+// 	scriptClasspath = buildScriptClasspath
+// 	script new File('mpscode/build-server.xml')
+// }
 
-task runLanguageTests(type: TestLanguages, dependsOn: [/*buildServer*/]) {
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-tests.xml')
-}
+// // task runLanguageTests(type: TestLanguages, dependsOn: [/*buildServer*/]) {
+// // 	scriptArgs = antScriptArgs
+// // 	scriptClasspath = buildScriptClasspath
+// // 	script new File('mpscode/build-tests.xml')
+// // }
 
-task buildExample(type: BuildLanguages, dependsOn: [generateBuildAntScripts]) {
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-example.xml')
-}
+// task buildExample(type: BuildLanguages, dependsOn: [generateBuildAntScripts]) {
+// 	scriptArgs = antScriptArgs
+// 	scriptClasspath = buildScriptClasspath
+// 	script new File('mpscode/build-example.xml')
+// }
 
-task buildLauncher(type: BuildLanguages, dependsOn: [buildServer, buildExample]) {
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-launcher.xml')
-}
+// task buildLauncher(type: BuildLanguages, dependsOn: [buildServer, buildExample]) {
+// 	scriptArgs = antScriptArgs
+// 	scriptClasspath = buildScriptClasspath
+// 	script new File('mpscode/build-launcher.xml')
+// }
 
-task runLauncher(type: RunAntScript, dependsOn: [/*buildLauncher*/]) {
-	targets = ['run.com.strumenta.mpsserver.launcher']
-	scriptArgs = antScriptArgs
-	scriptClasspath = buildScriptClasspath
-	script new File('mpscode/build-launcher.xml')
-}
+// task runLauncher(type: RunAntScript, dependsOn: [/*buildLauncher*/]) {
+// 	targets = ['run.com.strumenta.mpsserver.launcher']
+// 	scriptArgs = antScriptArgs
+// 	scriptClasspath = buildScriptClasspath
+// 	script new File('mpscode/build-launcher.xml')
+// }
 
-def examineTestFile(file) {
-	def testsResult = new XmlParser().parse(file)
-	def errors = testsResult.attributes()["errors"] as Integer
-	def failures = testsResult.attributes()["failures"] as Integer
-	def tests = testsResult.attributes()["tests"] as Integer
-	def skipped = testsResult.attributes()["skipped"] as Integer
-	def successes = tests - skipped - failures - errors
+// // def examineTestFile(file) {
+// // 	def testsResult = new XmlParser().parse(file)
+// // 	def errors = testsResult.attributes()["errors"] as Integer
+// // 	def failures = testsResult.attributes()["failures"] as Integer
+// // 	def tests = testsResult.attributes()["tests"] as Integer
+// // 	def skipped = testsResult.attributes()["skipped"] as Integer
+// // 	def successes = tests - skipped - failures - errors
 
-	testsResult.get("testcase").each { tc ->
-		if (tc.get("failure").size() > 0) {
-			println("[FAILED TEST]")
-			println("  classname: " + tc.attributes()["classname"])
-			println("  name:      " + tc.attributes()["name"])
-			println("  message:   " + tc.get("failure").get(0).attributes()["message"])
-			println()
-		} else if (tc.get("error").size() > 0) {
-			println("[FAILED TEST]")
-			println("  classname: " + tc.attributes()["classname"])
-			println("  name:      " + tc.attributes()["name"])
-			println("  message:   " + tc.get("error").get(0).attributes()["message"])
-			println()
-		}
-	}
+// // 	testsResult.get("testcase").each { tc ->
+// // 		if (tc.get("failure").size() > 0) {
+// // 			println("[FAILED TEST]")
+// // 			println("  classname: " + tc.attributes()["classname"])
+// // 			println("  name:      " + tc.attributes()["name"])
+// // 			println("  message:   " + tc.get("failure").get(0).attributes()["message"])
+// // 			println()
+// // 		} else if (tc.get("error").size() > 0) {
+// // 			println("[FAILED TEST]")
+// // 			println("  classname: " + tc.attributes()["classname"])
+// // 			println("  name:      " + tc.attributes()["name"])
+// // 			println("  message:   " + tc.get("error").get(0).attributes()["message"])
+// // 			println()
+// // 		}
+// // 	}
 	
-	println("Tests     : $tests")
-	println("Skipped   : $skipped")
-	println("Failures  : $failures")
-	println("Successes : $successes")
-	println("Errors    : $errors")
+// // 	println("Tests     : $tests")
+// // 	println("Skipped   : $skipped")
+// // 	println("Failures  : $failures")
+// // 	println("Successes : $successes")
+// // 	println("Errors    : $errors")
 	
-	println()
-	if (failures > 0 || errors > 0) {
-		println("Check tests: FAILURE")
-		throw new GradleException("Not all tests were run successfully")
-	} else {		
-		println("Check tests: SUCCESS")
-	}	
-}
+// // 	println()
+// // 	if (failures > 0 || errors > 0) {
+// // 		println("Check tests: FAILURE")
+// // 		throw new GradleException("Not all tests were run successfully")
+// // 	} else {		
+// // 		println("Check tests: SUCCESS")
+// // 	}	
+// // }
 
-task justCheckLanguageTests() {
-	doLast {
-		examineTestFile("mpscode/TEST-jetbrains.mps.testbench.junit.suites.AntModuleTestSuite0-mpsserver.tests.xml")
-	}	 
-}
+// // task justCheckLanguageTests() {
+// // 	doLast {
+// // 		examineTestFile("mpscode/TEST-jetbrains.mps.testbench.junit.suites.AntModuleTestSuite0-mpsserver.tests.xml")
+// // 	}	 
+// // }
 
-task checkLanguageTests() {
-	dependsOn 'runLanguageTests'
-	dependsOn 'justCheckLanguageTests'
-	tasks.findByName('justCheckLanguageTests').mustRunAfter 'runLanguageTests'
-}
+// // task checkLanguageTests() {
+// // 	dependsOn 'runLanguageTests'
+// // 	dependsOn 'justCheckLanguageTests'
+// // 	tasks.findByName('justCheckLanguageTests').mustRunAfter 'runLanguageTests'
+// // }

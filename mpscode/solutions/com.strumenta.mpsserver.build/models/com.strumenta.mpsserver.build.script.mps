@@ -873,6 +873,10 @@
       <property role="TrG5h" value="project.home" />
       <node concept="55IIr" id="5jTJHMulWJb" role="398pKh" />
     </node>
+    <node concept="398rNT" id="5jTJHMumbcS" role="1l3spd">
+      <property role="TrG5h" value="mpsserver.home" />
+      <node concept="55IIr" id="5jTJHMumbd1" role="398pKh" />
+    </node>
     <node concept="1wNqPr" id="7GBq2$enM0S" role="3989C9">
       <property role="1wNuhe" value="true" />
       <property role="1wNuhh" value="8" />
